@@ -14,6 +14,8 @@
 (async function () {
   var EXEC = "https://script.google.com/macros/s/AKfycbySUROrL8pXcdkVRDJymKwb9v9z9MmZlt8eR5r6ZR6l_oacayagoHdD-fFx9Cq1-EU0ZQ/exec";
   var owner = new URLSearchParams(location.search).get("owner");
+  var hk = location.hash.match(/k=([A-Za-z0-9]+)/);   // owner key passed once in the link (#k=...), kept only on this device
+  if (hk) { try { localStorage.setItem("aji_owner_k", hk[1]); } catch (e) {} history.replaceState(null, "", location.pathname + location.search); }
   var k = null; try { if (owner) k = localStorage.getItem("aji_owner_k"); } catch (e) {}
   if (owner && !k) { document.getElementById("ld").innerHTML = '<p style="font-size:18px"><b>Owner key missing on this device.</b><br>Open your owner link (from the owner card) once in this browser.</p>'; return; }
   var GS = '  function gs(fn) {\n' +
