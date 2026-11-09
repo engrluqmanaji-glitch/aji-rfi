@@ -15,7 +15,8 @@
   h1 { margin:18px 0 4px; font-size:28px; } p { color:var(--muted); font-size:16px; line-height:1.45; }
   .btn { display:block; width:100%; border:0; border-radius:14px; padding:18px; font-size:20px; font-weight:700; margin-top:14px; cursor:pointer; text-decoration:none; }
   .primary { background:var(--org); color:#fff; } .plain { background:#fff; color:var(--ink); border:2px solid #d5dbe1; }
-  .box { background:#fff; border-radius:14px; padding:14px 16px; text-align:left; margin-top:16px; font-size:16px; line-height:1.55; }
+  .box { background:#fff; border-radius:14px; padding:14px 16px; text-align:left; margin-top:16px; font-size:17px; line-height:1.6; }
+  .box b.k { display:inline-block; background:#14232e; color:#fff; border-radius:6px; padding:0 7px; }
   .warn { background:#fdecec; color:#b91c1c; }
   [hidden] { display:none !important; }
 </style></head>
@@ -23,21 +24,28 @@
   <img src="icon-512.png" alt="AJI-RFI-TRACKER icon">
   <h1>AJI-RFI-TRACKER</h1>
   <p>AJI site team · RFI tracker</p>
-  <button class="btn primary" id="install" hidden>📲 Install app</button>
-  <div class="box" id="ios" hidden><b>iPhone:</b> tap <b>Share</b> (square with arrow) at the bottom → <b>Add to Home Screen</b> → <b>Add</b>.</div>
+  <button class="btn primary" id="install">📲 Install app</button>
+  <div class="box" id="how" hidden></div>
   <div class="box" id="done" hidden>✅ Installed. Open <b>AJI-RFI-TRACKER</b> from your home screen.</div>
   <a class="btn plain" id="open">Open tracker now</a>
 </div>
 <script>
   const APP = "https://script.google.com/macros/s/AKfycbySUROrL8pXcdkVRDJymKwb9v9z9MmZlt8eR5r6ZR6l_oacayagoHdD-fFx9Cq1-EU0ZQ/exec";
   const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
-  if (standalone) location.replace(APP);
+  if (standalone) location.replace(APP);            // opened from the home-screen icon → straight into the tracker
   document.getElementById("open").href = APP;
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
-  let ev = null; const btn = document.getElementById("install");
-  addEventListener("appinstalled", () => { btn.hidden = true; document.getElementById("done").hidden = false; });
-  btn.onclick = async () => { if (!ev) return; ev.prompt(); const r = await ev.userChoice; if (r.outcome === "accepted") btn.hidden = true; ev = null; };
-  addEventListener("beforeinstallprompt", e => { e.preventDefault(); ev = e; btn.hidden = false; });
-  if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) document.getElementById("ios").hidden = false;
+  const ua = navigator.userAgent || "", ios = /iPhone|iPad|iPod/i.test(ua), android = /Android/i.test(ua), edge = /Edg\//.test(ua);
+  const steps = ios ? "On iPhone: open this page in <b>Safari</b> → tap <b class=k>Share ⬆</b> at the bottom → <b>Add to Home Screen</b> → <b>Add</b>."
+    : android ? "Tap Chrome's <b class=k>⋮</b> (3 dots, top right) → <b>Install app</b> (or <b>Add to Home screen</b>) → <b>Install</b>."
+    : edge ? "Click Edge's <b class=k>⋯</b> (top right) → <b>Apps</b> → <b>Install this site as an app</b>."
+    : "Click Chrome's <b class=k>⋮</b> (top right) → <b>Cast, save and share</b> → <b>Install page as app…</b> → <b>Install</b>.";
+  let ev = null; const btn = document.getElementById("install"), how = document.getElementById("how");
+  addEventListener("beforeinstallprompt", e => { e.preventDefault(); ev = e; });
+  btn.onclick = async () => {
+    if (ev) { ev.prompt(); const r = await ev.userChoice; ev = null; if (r.outcome === "accepted") { btn.hidden = true; return; } }
+    how.innerHTML = "<b>📲 Put AJI-RFI-TRACKER on your " + (ios || android ? "home screen" : "PC") + ":</b><br>" + steps; how.hidden = false; how.scrollIntoView({ behavior: "smooth" });
+  };
+  addEventListener("appinstalled", () => { btn.hidden = true; how.hidden = true; document.getElementById("done").hidden = false; });
 </script>
 </body></html>
