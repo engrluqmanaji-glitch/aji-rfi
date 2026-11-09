@@ -2,7 +2,7 @@
   "id": "./?app=team",
   "name": "AJI-RFI-TRACKER",
   "short_name": "AJI-RFI",
-  "start_url": "./?app=team",
+  "start_url": "./app.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AJI-RFI-TRACKER</title>
+<link rel="manifest" href="team.webmanifest">
+<link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#14232e"><meta name="robots" content="noindex">
+</head>
+<body style="margin:0;font-family:Arial,sans-serif;background:#eef1f4;color:#14232e">
+<div id="ld" style="text-align:center;padding:70px 16px"><img src="icon-192.png" width="96" height="96" style="border-radius:20px" alt=""><p style="font-size:18px">Loading AJI-RFI-TRACKER…</p></div>
+<script>
+// AJI-RFI-TRACKER app: loads the tracker screens from the Google Apps Script and talks to it with plain web requests
+// (no Google sign-in involved, so Google's multiple-account error cannot happen).
+(async function () {
+  var EXEC = "https://script.google.com/macros/s/AKfycbySUROrL8pXcdkVRDJymKwb9v9z9MmZlt8eR5r6ZR6l_oacayagoHdD-fFx9Cq1-EU0ZQ/exec";
+  var owner = new URLSearchParams(location.search).get("owner");
+  var k = null; try { if (owner) k = localStorage.getItem("aji_owner_k"); } catch (e) {}
+  if (owner && !k) { document.getElementById("ld").innerHTML = '<p style="font-size:18px"><b>Owner key missing on this device.</b><br>Open your owner link (from the owner card) once in this browser.</p>'; return; }
+  var GS = '  function gs(fn) {\n' +
+    '    var args = Array.prototype.slice.call(arguments, 1);\n' +
+    '    return fetch(window.__API, { method: "POST", body: JSON.stringify({ fn: fn, args: args }), credentials: "omit" })\n' +
+    '      .then(function (r) { return r.json(); }, function () { throw { code: "unavailable", message: "No connection. Check your internet." }; })\n' +
+    '      .then(function (j) { if (j && j.ok) return j.data; var m = String((j && j.error) || "Error"); throw { code: /DENIED/.test(m) ? "denied" : "unavailable", message: m.replace(/^.*DENIED:\\s*/, "") }; });\n' +
+    '  }\n';
+  try {
+    var src = await fetch(EXEC + "?src=app", { credentials: "omit", cache: "no-store" }).then(function (r) { if (!r.ok) throw new Error("http"); return r.text(); });
+    var a = src.indexOf("  function gs(fn) {"), b = src.indexOf("  var state = null");
+    if (a < 0 || b < 0) throw new Error("format");
+    src = src.slice(0, a) + GS + src.slice(b);
+    var cfg = k ? { key: "", owner: false, sheetUrl: "", pinKey: k, hasPin: true } : { key: "", owner: false };
+    var head = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">' +
+      '<link rel="manifest" href="' + (owner ? "owner" : "team") + '.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">' +
+      '<meta name="theme-color" content="#14232e"><scr' + 'ipt>window.__CFG=' + JSON.stringify(cfg) + ';window.__API="' + EXEC + '";</scr' + 'ipt></head><body>';
+    document.open(); document.write(head + src + "</body></html>"); document.close();
+  } catch (e) {
+    document.getElementById("ld").innerHTML = '<p style="font-size:18px"><b>Could not load the tracker.</b><br>Check your internet and try again.</p><button style="font-size:18px;padding:12px 20px;border-radius:10px;border:0;background:#e85d04;color:#fff" onclick="location.reload()">Try again</button>';
+  }
+})();
+</script>
+</body></html>

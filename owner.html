@@ -36,7 +36,7 @@
   const m = location.hash.match(/k=([A-Za-z0-9]+)/);
   try { if (m) { localStorage.setItem("aji_owner_k", m[1]); history.replaceState(null, "", location.pathname); } } catch (e) {}
   let k = null; try { k = localStorage.getItem("aji_owner_k"); } catch (e) {}
-  const url = k ? APP + "?k=" + k : "";
+  const url = k ? "app.html?owner=1" : "";   // owner tracker on this site; key stays on this device
   const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
   if (standalone && url) location.replace(url);
   if (!url) document.getElementById("nokey").hidden = false;

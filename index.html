@@ -30,7 +30,7 @@
   <a class="btn plain" id="open">Open tracker now</a>
 </div>
 <script>
-  const APP = "https://script.google.com/macros/s/AKfycbySUROrL8pXcdkVRDJymKwb9v9z9MmZlt8eR5r6ZR6l_oacayagoHdD-fFx9Cq1-EU0ZQ/exec";
+  const APP = "app.html";   // the tracker, loaded without Google sign-in
   const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
   if (standalone) location.replace(APP);            // opened from the home-screen icon → straight into the tracker
   document.getElementById("open").href = APP;
