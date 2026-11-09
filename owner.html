@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AJI-RFI Owner</title>
+<link rel="manifest" href="owner.webmanifest">
+<link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#14232e">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="RFI Owner">
+<meta name="robots" content="noindex">
+<style>
+  :root { --ink:#14232e; --org:#e85d04; --bg:#eef1f4; --muted:#5b6b78; }
+  * { box-sizing:border-box; } body { margin:0; font-family:Arial, sans-serif; background:var(--bg); color:var(--ink); }
+  .wrap { max-width:480px; margin:0 auto; padding:28px 16px; text-align:center; }
+  img { width:120px; height:120px; border-radius:26px; box-shadow:0 6px 20px rgba(0,0,0,.18); }
+  h1 { margin:18px 0 4px; font-size:28px; } p { color:var(--muted); font-size:16px; line-height:1.45; }
+  .btn { display:block; width:100%; border:0; border-radius:14px; padding:18px; font-size:20px; font-weight:700; margin-top:14px; cursor:pointer; text-decoration:none; }
+  .primary { background:var(--org); color:#fff; } .plain { background:#fff; color:var(--ink); border:2px solid #d5dbe1; }
+  .box { background:#fff; border-radius:14px; padding:14px 16px; text-align:left; margin-top:16px; font-size:16px; line-height:1.55; }
+  .warn { background:#fdecec; color:#b91c1c; }
+  [hidden] { display:none !important; }
+</style></head>
+<body><div class="wrap">
+  <img src="icon-512.png" alt="AJI-RFI-TRACKER icon">
+  <h1>AJI-RFI Owner</h1>
+  <p>Engineer (owner) view – asks for your PIN</p>
+  <div class="box warn" id="nokey" hidden>Open this page once from your <b>owner link</b> (it carries your private key), then install.</div>
+  <button class="btn primary" id="install" hidden>📲 Install owner app</button>
+  <div class="box" id="ios" hidden><b>iPhone:</b> tap <b>Share</b> → <b>Add to Home Screen</b> → <b>Add</b>.</div>
+  <div class="box" id="done" hidden>✅ Installed. Open <b>RFI Owner</b> from your home screen.</div>
+  <a class="btn plain" id="open">Open owner view now</a>
+</div>
+<script>
+  // The owner key is NOT stored in this public page. It arrives once in the link (#k=...) and is kept only on this phone.
+  const APP = "https://script.google.com/macros/s/AKfycbySUROrL8pXcdkVRDJymKwb9v9z9MmZlt8eR5r6ZR6l_oacayagoHdD-fFx9Cq1-EU0ZQ/exec";
+  const m = location.hash.match(/k=([A-Za-z0-9]+)/);
+  try { if (m) { localStorage.setItem("aji_owner_k", m[1]); history.replaceState(null, "", location.pathname); } } catch (e) {}
+  let k = null; try { k = localStorage.getItem("aji_owner_k"); } catch (e) {}
+  const url = k ? APP + "?k=" + k : "";
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  if (standalone && url) location.replace(url);
+  if (!url) document.getElementById("nokey").hidden = false;
+  const open = document.getElementById("open"); if (url) open.href = url; else open.hidden = true;
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+  let ev = null; const btn = document.getElementById("install");
+  addEventListener("appinstalled", () => { btn.hidden = true; document.getElementById("done").hidden = false; });
+  btn.onclick = async () => { if (!ev) return; ev.prompt(); const r = await ev.userChoice; if (r.outcome === "accepted") btn.hidden = true; ev = null; };
+  addEventListener("beforeinstallprompt", e => { e.preventDefault(); ev = e; if (url) btn.hidden = false; });
+  if (/iPhone|iPad|iPod/i.test(navigator.userAgent) && url) document.getElementById("ios").hidden = false;
+</script>
+</body></html>
